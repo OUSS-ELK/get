@@ -1,29 +1,27 @@
 #include "get_next_line.h"
 
-static char	*ft_joining(char *buffer, char *buf)
-{
-	char	*tmp;
-
-	tmp = ft_strjoin(buffer, buf);
-	free(buffer);
-	return (tmp);
-}
-
 static char	*ft_nextline(char *buffer)
 {
 	char	*line;
 	int		i;
+	int		j;
+	int		buf_len;
 
 	i = 0;
+	buf_len = ft_strlen(buffer);
+	printf("buf_len = %d \n", buf_len);
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	i++;
-	line = ft_calloc((ft_strlen(buffer) + 2), sizeof(char));
-	i = 0;
-	while (buffer[i])
+	printf("i = %d \n", i);
+	printf("buffer_before_calloc :%s: \n", buffer);
+	line = ft_calloc((buf_len - i) + 1, sizeof(char));
+	printf("buffer_after_calloc :%s: \n", buffer);
+	j = 0;
+	while (buffer[i] && i < buf_len)
 	{
-		line[i] = buffer[i];
-		i++;
+		printf("buffer[%c]  |  line[%c]   \n", buffer[i], line[i]);
+		line[j++] = buffer[i++];
 	}
 	free(buffer);
 	return (line);	
@@ -33,7 +31,6 @@ static char	*ft_getline(char *buffer)
 {
 	char	*line;
 	int		i;
-	int		j;
 
 	i = 0;
 	while (buffer[i] && buffer[i] != '\n')
@@ -44,12 +41,16 @@ static char	*ft_getline(char *buffer)
 		return (NULL);
 	}
 	line = ft_calloc(i + 2, sizeof(char));
-	j = 0;
+	i = 0;
 	while (buffer[i] && buffer[i] != '\n')
-		line[j++] = buffer[i++];
-	free(buffer);
+	{
+		line[i] = buffer[i];
+		i++;
+	}
+	i++;
 	if (buffer[i] && buffer[i] == '\n')
-		line[i++] = '\n';
+		line[i] = '\n';
+	free(buffer);
 	return (line);
 }
 
@@ -59,6 +60,8 @@ static char	*ft_reading(int fd, char *buffer)
 	ssize_t	nb_read;									// return of read for allocat
 	
 	// reading file
+	if (!buffer)
+		buffer = ft_calloc(1, 1);
 	nb_read = 1;
 	buf = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
 	while (nb_read > 0)										// read all data until end of file
@@ -69,11 +72,11 @@ static char	*ft_reading(int fd, char *buffer)
 			return (NULL);
 		}
 		buf[nb_read] = '\0';
-		buffer = ft_joining(buffer, buf);
+		buffer = ft_strjoin(buffer, buf);					//add reminder to new read
+		free(buf);
 		if (ft_strchr(buf, '\n'))
 			break ;
 	}
-	free(buf);
 	return (buffer);
 }
 
@@ -85,22 +88,25 @@ char	*get_next_line(int	fd)
 	// initial check
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)// check fd if open || buffer is positive || check the fd if ready for read
 		return (NULL);
-	buffer = ft_reading(fd, buffer);
-	line = ft_getline(buffer);
-	buffer = ft_nextline(buffer);
+	line = NULL;
+//	printf("(get_function)buffer-before_read :%s:\n", buffer);
+//	printf("(get_function)line-before_read :%s:\n", line);
+	buffer = ft_reading(fd, buffer);						//read all file
+//	printf("(get_function)buffer-after_read :%s:\n", buffer);
+//	printf("(get_function)line-after_read :%s:\n", line);
+	line = ft_getline(buffer);								//return the line 
+	printf("(get_function)buffer-after_getline :%s:\n", buffer);
+//	printf("(get_function)line-after_getline :%s:\n", line);
+	buffer = ft_nextline(buffer);							//handle reminder
+	printf("(get_function)buffer-after_nextline :%s:\n", buffer);
 	return (line);
 }
 
 int main ()
 {
 	int fd = open("text.txt", O_RDONLY);
-	char *line;
-
-	line = get_next_line(fd); 
-	while (1){
-	printf("return :%s:\n", line);
-	if (line == NULL)
-		break ;
-	}
-	return (0);
+	
+	printf("return :%s:\n", get_next_line(fd));
+//	printf("return :%s:\n", get_next_line(fd));
+//	printf("return :%s:\n", get_next_line(fd));
 }
