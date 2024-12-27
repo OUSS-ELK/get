@@ -34,7 +34,7 @@ char	*ft_strdup(char *s)
 char	*ft_calloc(size_t count, size_t size)
 {
 	char	*s;
-	int		x;
+	size_t	x;
 
 	s = malloc(count * size);
 	if (!s)

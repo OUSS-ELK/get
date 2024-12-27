@@ -9,18 +9,18 @@ static char	*ft_nextline(char *buffer)
 
 	i = 0;
 	buf_len = ft_strlen(buffer);
-	printf("buf_len = %d \n", buf_len);
+	// printf("buf_len = %d \n", buf_len);
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	i++;
-	printf("i = %d \n", i);
-	printf("buffer_before_calloc :%s: \n", buffer);
+	// printf("i = %d \n", i);
+	// printf("buffer_before_calloc :%s: \n", buffer);
 	line = ft_calloc((buf_len - i) + 1, sizeof(char));
-	printf("buffer_after_calloc :%s: \n", buffer);
+	// printf("buffer_after_calloc :%s: \n", buffer);
 	j = 0;
 	while (buffer[i] && i < buf_len)
 	{
-		printf("buffer[%c]  |  line[%c]   \n", buffer[i], line[i]);
+		// printf("buffer[%c]  |  line[%c]   \n", buffer[i], line[i]);
 		line[j++] = buffer[i++];
 	}
 	free(buffer);
@@ -95,13 +95,13 @@ char	*get_next_line(int	fd)
 //	printf("(get_function)buffer-after_read :%s:\n", buffer);
 //	printf("(get_function)line-after_read :%s:\n", line);
 	line = ft_getline(buffer);								//return the line 
-	printf("(get_function)buffer-after_getline :%s:\n", buffer);
+	// printf("(get_function)buffer-after_getline :%s:\n", buffer);
 //	printf("(get_function)line-after_getline :%s:\n", line);
 	buffer = ft_nextline(buffer);							//handle reminder
-	printf("(get_function)buffer-after_nextline :%s:\n", buffer);
+	// printf("(get_function)buffer-after_nextline :%s:\n", buffer);
 	return (line);
 }
-
+/*
 int main ()
 {
 	int fd = open("text.txt", O_RDONLY);
@@ -109,4 +109,4 @@ int main ()
 	printf("return :%s:\n", get_next_line(fd));
 //	printf("return :%s:\n", get_next_line(fd));
 //	printf("return :%s:\n", get_next_line(fd));
-}
+}*/
