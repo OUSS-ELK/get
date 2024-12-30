@@ -1,11 +1,12 @@
 #include "get_next_line.h"
 
-int	ft_strlen(char *str)
+size_t	ft_strlen(char *str)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
-	while(str[++i]);
+	while(str[i])
+		i++;
 	return (i);
 }
 
@@ -68,18 +69,10 @@ void concat(char *str, char *s1, char *s2)
 	i = 0;
 	x = 0;
 	while (s1[i])
-	{
-		str[x] = s1[i];
-		i++;
-		x++;
-	}
+		str[x++] = s1[i++];
 	i = 0;
 	while (s2[i])
-	{
-		str[x] = s2[i];
-		i++;
-		x++;
-	}
+		str[x++] = s2[i++];
 	str[x] = '\0';
 }
 

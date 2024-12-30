@@ -3,28 +3,29 @@
 static char	*ft_nextline(char *buffer)
 {
 	char	*line;
-	int		i;
+	size_t	i;
 	int		j;
-	int		buf_len;
+	size_t	buf_len;
 
 	i = 0;
+	if (!*buffer){
+		free(buffer);
+		return (NULL);
+	}
 	buf_len = ft_strlen(buffer);
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
-	i++;
-	// if (i > buf_len)
-	// {
-	// 	free (buffer);
-	// 	return (NULL);
-	// }
-	line = ft_calloc((buf_len - i) + 1, sizeof(char));
+	if (buffer[i] == '\n')
+		i++;
+	line = ft_calloc((buf_len - i) + 2, sizeof(char));
 	if (!line)
+	{
+		free(buffer);
 		return (NULL);
+	}
 	j = 0;
 	while (buffer[i] && i < buf_len)
-	{
 		line[j++] = buffer[i++];
-	}
 	free(buffer);
 	return (line);	
 }
@@ -35,27 +36,23 @@ static char	*ft_getline(char *buffer)
 	int		i;
 
 	if (!buffer[0])
-	{
-		free(buffer);
 		return (NULL);
-	}
 	i = 0;
-	while (buffer[i] && buffer[i] != '\n')
+	while (buffer[i] && buffer[i] != '\n') 				// skip until find \n
 		i++;
 	if (buffer[i] == '\n')
 		i++;
-	line = ft_calloc(i + 1, sizeof(char));
+	line = ft_calloc(i + 1, sizeof(char));				// allocate char && \n
 	if (!line)
 		return (NULL);
 	i = 0;
-	while (buffer[i] && buffer[i] != '\n')
+	while (buffer[i] && buffer[i] != '\n')				// fill line
 	{
 		line[i] = buffer[i];
 		i++;
 	}
-	i++;
-	if (buffer[i] && buffer[i] == '\n')
-		line[i] = '\n';
+	if (buffer[i] == '\n')
+		line[i++] = '\n';
 	return (line);
 }
 
@@ -63,28 +60,49 @@ static char	*ft_reading(int fd, char *buffer)
 {
 	char	*buf;
 	ssize_t	nb_read;									// return of read for allocat
+	char 	*tmp;
 	
 	// reading file
-	if (!buffer)
-		// return (NULL);
+	if (!buffer){
 		buffer = ft_calloc(1, 1);
+		// printf("buffer allocation '1 byte' [%p]\n", buffer);
+		if (!buffer)
+			return (NULL);
+	}
 	nb_read = 1;
 	buf = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+		// printf("buf allocation 'BUFFER_SIZE + 1' [%p]\n", buf);
 	if (!buf)
 		return (NULL);
 	while (nb_read > 0)										// read all data until end of file
 	{
-		nb_read = read(fd, buf, BUFFER_SIZE);	
-		if (nb_read == 0){
+		nb_read = read(fd, buf, BUFFER_SIZE);
+		if (nb_read == 0)
+		{
 			free(buf);
+		// printf("buf free (nb_read == 0) [%p]", buf);
 			return (buffer);
 		}
+		if (nb_read < 0){
+			free(buf);
+			return (NULL);}
 		buf[nb_read] = '\0';
+		tmp = buffer;
+		// printf("tmp = buffer [%s] | &[%p]\n", tmp, tmp);
 		buffer = ft_strjoin(buffer, buf);					//add reminder to new read
-		free(buf);
+		free(tmp);
+		// printf("tmp free (after join) [%p] | buffer[%p]\n", tmp, buffer);
+		if (!buffer)
+		{
+			// free (buf);
+		// printf("buf free (if buffer !!) [%p]\n", buf);
+			return (NULL);
+		}
 		if (ft_strchr(buf, '\n'))
 			break ;
 	}
+	free(buf);
+		// printf("buf free (after while) [%p]\n", buf);
 	return (buffer);
 }
 
@@ -94,26 +112,22 @@ char	*get_next_line(int	fd)
 	char		*line;										// buffer for read
 
 	// initial check
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)// check fd if open || buffer is positive || check the fd if ready for read
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)//check fd if open || buffer is positive || check the fd if ready for read
 		return (NULL);
-//	printf("(get_function)buffer-before_read :%s:\n", buffer);
-//	printf("(get_function)line-before_read :%s:\n", line);
-	buffer = ft_reading(fd, buffer);						//read all file
-//	printf("(get_function)buffer-after_read :%s:\n", buffer);
-//	printf("(get_function)line-after_read :%s:\n", line);
-	line = ft_getline(buffer);								//return the line 
-	// printf("(get_function)buffer-after_getline :%s:\n", buffer);
-//	printf("(get_function)line-after_getline :%s:\n", line);
-	buffer = ft_nextline(buffer);							//handle reminder
-	// printf("(get_function)buffer-after_nextline :%s:\n", buffer);
+	buffer = ft_reading(fd, buffer);						//	read all file
+	if (!buffer){
+		free (buffer);
+		return (NULL);}
+	line = ft_getline(buffer);								//	return the line 
+	buffer = ft_nextline(buffer);							//	handle reminder
 	return (line);
 }
 
-int main ()
-{
-	int fd = open("text.txt", O_RDONLY);
+// int main ()
+// {
+// 	int fd = open("text.txt", O_RDONLY);
 	
-	printf("return :%s:\n", get_next_line(fd));
-	// printf("return :%s:\n", get_next_line(fd));
-//	printf("return :%s:\n", get_next_line(fd));
-}
+// 	printf("return :%s:\n", get_next_line(fd));
+// 	//  printf("return :%s:\n", get_next_line(fd));
+// //	printf("return :%s:\n", get_next_line(fd));
+// }
