@@ -6,7 +6,7 @@
 /*   By: ouelkhar <ouelkhar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 20:10:36 by ouelkhar          #+#    #+#             */
-/*   Updated: 2025/01/03 13:54:16 by ouelkhar         ###   ########.fr       */
+/*   Updated: 2025/01/07 18:16:08 by ouelkhar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,25 +17,21 @@ static char	*ft_nextline(char *buffer)
 	char	*line;
 	size_t	i;
 	int		j;
+	size_t	s_l;
 
 	if (!*buffer)
-	{
-		free(buffer);
-		return (NULL);
-	}
+		return (free(buffer), NULL);
 	i = 0;
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	if (buffer[i] == '\n')
 		i++;
-	line = ft_calloc((ft_strlen(buffer) - i) + 1, sizeof(char));
+	s_l = ft_strlen(buffer);
+	line = ft_calloc((s_l - i) + 1, sizeof(char));
 	if (!line)
-	{
-		free(buffer);
-		return (NULL);
-	}
+		return (free(buffer), NULL);
 	j = 0;
-	while (buffer[i] && i < ft_strlen(buffer))
+	while (buffer[i] && i < s_l)
 		line[j++] = buffer[i++];
 	free(buffer);
 	return (line);
@@ -55,10 +51,7 @@ static char	*ft_getline(char *buffer)
 		i++;
 	line = ft_calloc(i + 1, sizeof(char));
 	if (!line)
-	{
-		free(buffer);
-		return (NULL);
-	}
+		return (free(buffer), NULL);
 	i = 0;
 	while (buffer[i] && buffer[i] != '\n')
 	{
@@ -80,10 +73,7 @@ static void	*ft_read(char *buffer, char *buf, int fd)
 	{
 		nb_read = read(fd, buf, BUFFER_SIZE);
 		if (nb_read == -1)
-		{
-			free(buffer);
-			return (NULL);
-		}
+			return (free(buffer), NULL);
 		buf[nb_read] = '\0';
 		tmp = buffer;
 		buffer = ft_strjoin(buffer, buf);
@@ -106,16 +96,10 @@ static char	*ft_reading(int fd, char *buffer)
 	}
 	buf = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
 	if (!buf)
-	{
-		free(buffer);
-		return (NULL);
-	}
+		return (free(buffer), NULL);
 	buffer = ft_read(buffer, buf, fd);
 	if (!buffer)
-	{
-		free(buf);
-		return (NULL);
-	}
+		return (free(buf), NULL);
 	free(buf);
 	return (buffer);
 }
@@ -134,10 +118,7 @@ char	*get_next_line(int fd)
 	}
 	buffer = ft_reading(fd, buffer);
 	if (!buffer)
-	{
-		buffer = NULL;
 		return (NULL);
-	}
 	line = ft_getline(buffer); 
 	buffer = ft_nextline(buffer);
 	return (line);
